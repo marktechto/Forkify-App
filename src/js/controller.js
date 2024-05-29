@@ -13,9 +13,19 @@ const controlRecipes = async function () {
     //(2) Rendering recipe
     recipeView.render(model.state.recipe);
   } catch (err) {
-    alert(err);
+    console.log(err);
+    recipeView.renderError(`${err}🎆🎆🎆🎆🎆🎆🎆`);
   }
 };
-["haschange", "load"].forEach((ev) =>
-  window.addEventListener(ev, controlRecipes)
-);
+const controlSearchResults = async function () {
+  try {
+    await model.loadSearchResult("pizza");
+    console.log(model.state.search.results);
+  } catch (err) {
+    console.log(err);
+  }
+};
+const init = function () {
+  recipeView.addHandlerRender(controlRecipes);
+};
+init();

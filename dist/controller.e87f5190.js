@@ -888,7 +888,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.TIMEOUT_SEC = exports.API_URL = void 0;
-var API_URL = exports.API_URL = "https://forkify-api.herokuapp.com/api/v2/recipes";
+var API_URL = exports.API_URL = "https://forkify-api.herokuapp.com/api/v2/recipes/";
 var TIMEOUT_SEC = exports.TIMEOUT_SEC = 10;
 },{}],"src/js/helpers.js":[function(require,module,exports) {
 "use strict";
@@ -953,7 +953,7 @@ var getJSON = exports.getJSON = /*#__PURE__*/function () {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.state = exports.loadRecipe = void 0;
+exports.state = exports.loadSearchResult = exports.loadRecipe = void 0;
 var _regeneratorRuntime2 = require("regenerator-runtime");
 var _config = require("./config.js");
 var _helpers = require("./helpers.js");
@@ -962,7 +962,11 @@ function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyri
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
 var state = exports.state = {
-  recipe: {}
+  recipe: {},
+  search: {
+    query: "",
+    results: []
+  }
 };
 var loadRecipe = exports.loadRecipe = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(id) {
@@ -972,7 +976,7 @@ var loadRecipe = exports.loadRecipe = /*#__PURE__*/function () {
         case 0:
           _context.prev = 0;
           _context.next = 3;
-          return (0, _helpers.getJSON)("".concat(_config.API_URL, "/").concat(id));
+          return (0, _helpers.getJSON)("".concat(_config.API_URL).concat(id));
         case 3:
           data = _context.sent;
           recipe = data.data.recipe;
@@ -987,13 +991,14 @@ var loadRecipe = exports.loadRecipe = /*#__PURE__*/function () {
             cookingTime: recipe.cooking_time
           };
           console.log(state.recipe);
-          _context.next = 12;
+          _context.next = 13;
           break;
         case 9:
           _context.prev = 9;
           _context.t0 = _context["catch"](0);
           console.error("".concat(_context.t0, "\uD83C\uDF86\uD83C\uDF86\uD83C\uDF86\uD83C\uDF86\uD83C\uDF86\uD83C\uDF86\uD83C\uDF86"));
-        case 12:
+          throw _context.t0;
+        case 13:
         case "end":
           return _context.stop();
       }
@@ -1003,6 +1008,45 @@ var loadRecipe = exports.loadRecipe = /*#__PURE__*/function () {
     return _ref.apply(this, arguments);
   };
 }();
+var loadSearchResult = exports.loadSearchResult = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(query) {
+    var data;
+    return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+      while (1) switch (_context2.prev = _context2.next) {
+        case 0:
+          _context2.prev = 0;
+          state.search.query = query;
+          _context2.next = 4;
+          return (0, _helpers.getJSON)("".concat(_config.API_URL, "?search=").concat(query));
+        case 4:
+          data = _context2.sent;
+          console.log(data);
+          state.search.results = data.data.recipes.map(function (rec) {
+            return {
+              id: rec.id,
+              title: rec.title,
+              publisher: rec.publisher,
+              image: rec.image_url
+            };
+          });
+          _context2.next = 13;
+          break;
+        case 9:
+          _context2.prev = 9;
+          _context2.t0 = _context2["catch"](0);
+          console.error("".concat(_context2.t0, "\uD83C\uDF86\uD83C\uDF86\uD83C\uDF86\uD83C\uDF86\uD83C\uDF86\uD83C\uDF86\uD83C\uDF86"));
+          throw _context2.t0;
+        case 13:
+        case "end":
+          return _context2.stop();
+      }
+    }, _callee2, null, [[0, 9]]);
+  }));
+  return function loadSearchResult(_x2) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+loadSearchResult("pizza");
 },{"regenerator-runtime":"node_modules/regenerator-runtime/runtime.js","./config.js":"src/js/config.js","./helpers.js":"src/js/helpers.js"}],"src/img/icons.svg":[function(require,module,exports) {
 module.exports = "/icons.ae3c38d5.svg";
 },{}],"src/js/views/recipeView.js":[function(require,module,exports) {
@@ -1029,6 +1073,8 @@ function _classPrivateFieldSet(s, a, r) { return s.set(_assertClassBrand(s, a), 
 function _assertClassBrand(e, t, n) { if ("function" == typeof e ? e === t : e.has(t)) return arguments.length < 3 ? t : n; throw new TypeError("Private element is not present on this object"); }
 var _parentElement = /*#__PURE__*/new WeakMap();
 var _data = /*#__PURE__*/new WeakMap();
+var _errorMessage = /*#__PURE__*/new WeakMap();
+var _message = /*#__PURE__*/new WeakMap();
 var _RecipeView_brand = /*#__PURE__*/new WeakSet();
 var RecipeView = /*#__PURE__*/function () {
   function RecipeView() {
@@ -1036,6 +1082,8 @@ var RecipeView = /*#__PURE__*/function () {
     _classPrivateMethodInitSpec(this, _RecipeView_brand);
     _classPrivateFieldInitSpec(this, _parentElement, document.querySelector(".recipe"));
     _classPrivateFieldInitSpec(this, _data, void 0);
+    _classPrivateFieldInitSpec(this, _errorMessage, "We could not find that recipe.Please try another one!");
+    _classPrivateFieldInitSpec(this, _message, "");
     _defineProperty(this, "renderSpinner", function () {
       var markUp = "\n      <div class=\"spinner\">\n        <svg>\n          <use href=\"".concat(_icons.default, "#icon-loader\"></use>\n        </svg>\n      </div>\n    ");
       _classPrivateFieldGet(_parentElement, this).innerHTML = "";
@@ -1049,6 +1097,21 @@ var RecipeView = /*#__PURE__*/function () {
       var markup = _assertClassBrand(_RecipeView_brand, this, _generateMarkup).call(this);
       _assertClassBrand(_RecipeView_brand, this, _clear).call(this);
       _classPrivateFieldGet(_parentElement, this).insertAdjacentHTML("afterBegin", markup);
+    }
+  }, {
+    key: "renderError",
+    value: function renderError() {
+      var message = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : _classPrivateFieldGet(_message, this);
+      var markUp = "\n        <div class=\"message\">\n          <div>\n            <svg>\n              <use href=\"".concat(_icons.default, "#icon-smile\"></use>\n            </svg>\n          </div>\n          <p>").concat(message, "</p>\n      </div> \n");
+      _assertClassBrand(_RecipeView_brand, this, _clear).call(this);
+      _classPrivateFieldGet(_parentElement, this).insertAdjacentHTML("afterbegin", markUp);
+    }
+  }, {
+    key: "addHandlerRender",
+    value: function addHandlerRender(handler) {
+      ["hashchange", "load"].forEach(function (ev) {
+        return window.addEventListener(ev, handler);
+      });
     }
   }]);
 }();
@@ -18102,13 +18165,14 @@ var controlRecipes = /*#__PURE__*/function () {
         case 7:
           //(2) Rendering recipe
           _recipeView.default.render(model.state.recipe);
-          _context.next = 13;
+          _context.next = 14;
           break;
         case 10:
           _context.prev = 10;
           _context.t0 = _context["catch"](0);
-          alert(_context.t0);
-        case 13:
+          console.log(_context.t0);
+          _recipeView.default.renderError("".concat(_context.t0, "\uD83C\uDF86\uD83C\uDF86\uD83C\uDF86\uD83C\uDF86\uD83C\uDF86\uD83C\uDF86\uD83C\uDF86"));
+        case 14:
         case "end":
           return _context.stop();
       }
@@ -18118,9 +18182,36 @@ var controlRecipes = /*#__PURE__*/function () {
     return _ref.apply(this, arguments);
   };
 }();
-["haschange", "load"].forEach(function (ev) {
-  return window.addEventListener(ev, controlRecipes);
-});
+var controlSearchResults = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+    return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+      while (1) switch (_context2.prev = _context2.next) {
+        case 0:
+          _context2.prev = 0;
+          _context2.next = 3;
+          return model.loadSearchResult("pizza");
+        case 3:
+          console.log(model.state.search.results);
+          _context2.next = 9;
+          break;
+        case 6:
+          _context2.prev = 6;
+          _context2.t0 = _context2["catch"](0);
+          console.log(_context2.t0);
+        case 9:
+        case "end":
+          return _context2.stop();
+      }
+    }, _callee2, null, [[0, 6]]);
+  }));
+  return function controlSearchResults() {
+    return _ref2.apply(this, arguments);
+  };
+}();
+var init = function init() {
+  _recipeView.default.addHandlerRender(controlRecipes);
+};
+init();
 },{"./model.js":"src/js/model.js","./views/recipeView.js":"src/js/views/recipeView.js","core-js/stable":"node_modules/core-js/stable/index.js","regenerator-runtime/runtime":"node_modules/regenerator-runtime/runtime.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -18146,7 +18237,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "14684" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "14359" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
