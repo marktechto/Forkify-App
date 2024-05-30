@@ -6,6 +6,7 @@ export const state = {
   search: {
     query: "",
     results: [],
+    resultPerPage: 10,
   },
 };
 export const loadRecipe = async function (id) {
@@ -47,4 +48,8 @@ export const loadSearchResult = async function (query) {
     throw err;
   }
 };
-loadSearchResult("pizza");
+export const getSearchResultsPage = function (page) {
+  const start = (page - 1) * state.search.resultPerPage;
+  const end = page * state.search.resultPerPage;
+  return state.search.results.slice(start, end);
+};
